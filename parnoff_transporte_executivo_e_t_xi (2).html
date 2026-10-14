@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parnoff - Transporte Executivo & Táxi de Luxo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#f3d567',
+                            500: '#d4af37',
+                            600: '#b89728',
+                        },
+                        darkBg: '#07090e',
+                        cardBg: '#101726',
+                        darkBorder: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #07090e;
+            color: #f8fafc;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #07090e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+        .page-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-view.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 antialiased selection:bg-gold-500 selection:text-slate-950 flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-darkBg/95 backdrop-blur-md border-b border-darkBorder transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
+            <!-- Logo -->
+            <button onclick="switchPage('home')" class="flex items-center gap-3 group text-left cursor-pointer">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-slate-950 font-bold text-2xl shadow-lg shadow-gold-500/20 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-car-side"></i>
+                </div>
+                <div>
+                    <span class="font-serif text-2xl font-bold tracking-wider text-white">PARNOFF</span>
+                    <span class="block text-[10px] uppercase tracking-widest text-gold-400 font-semibold">Executivo & Táxi</span>
+                </div>
+            </button>
+
+            <!-- Desktop Navigation Tabs -->
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <button onclick="switchPage('home')" id="nav-home" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent font-semibold text-gold-400">Início</button>
+                <button onclick="switchPage('frota')" id="nav-frota" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent">Frota</button>
+                <button onclick="switchPage('servicos')" id="nav-servicos" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent">Serviços</button>
+                <button onclick="switchPage('tarifas')" id="nav-tarifas" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent">Tarifas & Orçamento</button>
+                <button onclick="switchPage('sobre')" id="nav-sobre" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent">Sobre Nós</button>
+                <button onclick="switchPage('contato')" id="nav-contato" class="nav-tab hover:text-gold-400 transition-colors py-2 border-b-2 border-transparent">Contato</button>
+            </nav>
+
+            <!-- CTA WhatsApp -->
+            <div class="hidden lg:flex items-center gap-4">
+                <a href="https://wa.me/5511999999999?text=Olá,%20gostaria%20de%20fazer%20uma%20reserva%20com%20a%20Parnoff." target="_blank" class="bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 px-6 py-3 rounded-full font-semibold text-sm shadow-lg shadow-gold-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Agendar WhatsApp
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="lg:hidden text-slate-300 hover:text-gold-400 focus:outline-none p-2 text-2xl">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden absolute top-24 left-0 w-full bg-cardBg border-b border-darkBorder py-6 px-6 shadow-2xl transition-all">
+            <nav class="flex flex-col gap-4 text-base font-medium">
+                <button onclick="switchPage('home'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Início</button>
+                <button onclick="switchPage('frota'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Frota</button>
+                <button onclick="switchPage('servicos'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Serviços</button>
+                <button onclick="switchPage('tarifas'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Tarifas & Orçamento</button>
+                <button onclick="switchPage('sobre'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Sobre Nós</button>
+                <button onclick="switchPage('contato'); toggleMobileMenu();" class="text-left py-2 border-b border-darkBorder hover:text-gold-400">Contato</button>
+                <a href="https://wa.me/5511999999999?text=Olá,%20gostaria%20de%20fazer%20uma%20reserva%20com%20a%20Parnoff." target="_blank" class="mt-2 bg-gold-500 text-slate-950 text-center py-3 rounded-xl font-semibold shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Agendar via WhatsApp
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container for SPA Pages -->
+    <main class="flex-grow pt-24">
+
+        <!-- ================= PAGE 1: HOME ================= -->
+        <div id="page-home" class="page-view active">
+            <!-- Hero Section -->
+            <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=1920&auto=format&fit=crop" alt="Luxury Executive Car" class="w-full h-full object-cover opacity-25 scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-r from-darkBg via-darkBg/90 to-darkBg/70"></div>
+                </div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/30 px-4 py-1.5 rounded-full text-gold-400 text-xs sm:text-sm font-semibold tracking-wide uppercase">
+                            <i class="fa-solid fa-crown"></i> Transporte Executivo & Táxi Premium
+                        </div>
+                        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+                            Mobilidade de <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600">Alto Padrão</span> para Executivos
+                        </h1>
+                        <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                            Referência em traslados aeroportuários, carros blindados, viagens e táxi 24h. Excelência, pontualidade e discrição absoluta.
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+                            <button onclick="switchPage('tarifas')" class="bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 px-8 py-4 rounded-2xl font-bold text-base shadow-xl shadow-gold-500/20 hover:brightness-110 transition-all flex items-center gap-3 cursor-pointer">
+                                <i class="fa-solid fa-calculator"></i> Simular Tarifa & Orçamento
+                            </button>
+                            <button onclick="switchPage('frota')" class="bg-cardBg/90 hover:bg-slate-800 border border-darkBorder text-slate-200 px-7 py-4 rounded-2xl font-semibold text-base transition-all flex items-center gap-3 cursor-pointer">
+                                <i class="fa-solid fa-car"></i> Conhecer Frota
+                            </button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 hidden lg:block">
+                        <div class="bg-cardBg border border-darkBorder p-5 rounded-3xl shadow-2xl relative">
+                            <div class="absolute -top-3 -right-3 bg-gold-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Disponível 24/7</div>
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop" alt="Mercedes Executive" class="w-full h-72 object-cover rounded-2xl mb-4">
+                            <h3 class="font-serif text-xl font-bold text-white">Mercedes & Sedans de Luxo</h3>
+                            <p class="text-xs text-slate-400 mt-1">Conforto supremo com Wi-Fi, carregadores e motoristas bilíngues.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Overview Highlights -->
+            <section class="py-20 bg-cardBg/30 border-y border-darkBorder">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white mb-2">Frota Blindada & Nova</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Veículos com blindagem nível IIIA e manutenção preventiva rigorosa para total tranquilidade.</p>
+                    </div>
+                    <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white mb-2">Motoristas Bilíngues</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Profissionais trajados em terno, treinados em direção defensiva e atendimento VIP a executivos e dignitários.</p>
+                    </div>
+                    <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white mb-2">Faturamento PJ</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Contratos corporativos mensais simplificados com relatórios detalhados de centros de custo.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 2: FROTA ================= -->
+        <div id="page-frota" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <span class="text-gold-400 text-xs font-bold uppercase tracking-widest bg-gold-500/10 px-4 py-1.5 rounded-full border border-gold-500/20">Veículos de Elite</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Nossa Frota Completa</h2>
+                        <p class="text-slate-400 text-base">Seleção rigorosa de veículos modernos projetados para o máximo conforto e segurança nas ruas e estradas.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <!-- Car 1 -->
+                        <div class="bg-cardBg border border-darkBorder rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-gold-500/50 transition-all">
+                            <div>
+                                <div class="h-52 overflow-hidden relative">
+                                    <div class="absolute top-4 left-4 z-10 bg-slate-950/80 text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-darkBorder">Até 4 Passageiros</div>
+                                    <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=800&auto=format&fit=crop" alt="Sedan Executivo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="font-serif text-2xl font-bold text-white mb-1">Sedan Executivo</h3>
+                                    <p class="text-slate-400 text-xs mb-4">Mercedes Classe C, BMW Série 3, Corolla</p>
+                                    <ul class="space-y-2 text-xs text-slate-300">
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Porta-malas 3 malas</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Wi-Fi 5G & Carregadores</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Água mineral cortesia</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button onclick="switchPage('tarifas')" class="w-full bg-slate-800 hover:bg-gold-500 hover:text-slate-950 text-slate-200 font-semibold py-3 rounded-xl text-sm transition-colors cursor-pointer">
+                                    Reservar Sedan
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Car 2 -->
+                        <div class="bg-cardBg border border-darkBorder rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-gold-500/50 transition-all">
+                            <div>
+                                <div class="h-52 overflow-hidden relative">
+                                    <div class="absolute top-4 left-4 z-10 bg-slate-950/80 text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-darkBorder">Até 4 Passageiros</div>
+                                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop" alt="SUV Premium" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="font-serif text-2xl font-bold text-white mb-1">SUV Premium</h3>
+                                    <p class="text-slate-400 text-xs mb-4">Volvo XC60, Toyota SW4, Jeep Compass</p>
+                                    <ul class="space-y-2 text-xs text-slate-300">
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Espaço interno elevado</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Bancos em couro ergonômicos</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Perfeito para bagagens extras</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button onclick="switchPage('tarifas')" class="w-full bg-slate-800 hover:bg-gold-500 hover:text-slate-950 text-slate-200 font-semibold py-3 rounded-xl text-sm transition-colors cursor-pointer">
+                                    Reservar SUV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Car 3 -->
+                        <div class="bg-cardBg border border-darkBorder rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-gold-500/50 transition-all">
+                            <div>
+                                <div class="h-52 overflow-hidden relative">
+                                    <div class="absolute top-4 left-4 z-10 bg-slate-950/80 text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-darkBorder">Até 15 Passageiros</div>
+                                    <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800&auto=format&fit=crop" alt="Van Executiva" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="font-serif text-2xl font-bold text-white mb-1">Van Executiva</h3>
+                                    <p class="text-slate-400 text-xs mb-4">Mercedes Sprinter, Renault Master</p>
+                                    <ul class="space-y-2 text-xs text-slate-300">
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Poltronas reclináveis</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Ar-condicionado potente</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Ideal para equipes e eventos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button onclick="switchPage('tarifas')" class="w-full bg-slate-800 hover:bg-gold-500 hover:text-slate-950 text-slate-200 font-semibold py-3 rounded-xl text-sm transition-colors cursor-pointer">
+                                    Reservar Van
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Car 4 -->
+                        <div class="bg-cardBg border border-darkBorder rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-gold-500/50 transition-all">
+                            <div>
+                                <div class="h-52 overflow-hidden relative">
+                                    <div class="absolute top-4 left-4 z-10 bg-slate-950/80 text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-darkBorder">Proteção IIIA</div>
+                                    <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=800&auto=format&fit=crop" alt="Carro Blindado" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="font-serif text-2xl font-bold text-white mb-1">Frota Blindada</h3>
+                                    <p class="text-slate-400 text-xs mb-4">Corolla & SW4 Blindados Certificados</p>
+                                    <ul class="space-y-2 text-xs text-slate-300">
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Blindagem Nível IIIA</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Motoristas treinados em evasão</li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-400"></i> Discrição absoluta</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button onclick="switchPage('tarifas')" class="w-full bg-slate-800 hover:bg-gold-500 hover:text-slate-950 text-slate-200 font-semibold py-3 rounded-xl text-sm transition-colors cursor-pointer">
+                                    Reservar Blindado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 3: SERVIÇOS ================= -->
+        <div id="page-servicos" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <span class="text-gold-400 text-xs font-bold uppercase tracking-widest bg-gold-500/10 px-4 py-1.5 rounded-full border border-gold-500/20">Soluções Completas</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Nossos Serviços</h2>
+                        <p class="text-slate-400 text-base">Atendimento customizado para traslados, compromissos executivos, viagens e táxi urbano 24h.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-plane-departure"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Traslado Aeroportos</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Receptivo VIP no portão de desembarque com placa de identificação, monitoramento de voo em tempo real e auxílio com bagagens.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Guarulhos, Congonhas, Galeão e demais</span>
+                        </div>
+
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Viagens Intermunicipais</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Deslocamentos seguros e confortáveis para outras cidades e estados com motoristas experientes e veículos revisados.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Conforto em longos trajetos</span>
+                        </div>
+
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-business-time"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Motorista à Disposição</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Veículo e motorista particular à sua inteira disposição por hora para reuniões consecutivas ou visitas a clientes.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Flexibilidade total de agenda</span>
+                        </div>
+
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-handshake"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Eventos e Congressos</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Logística corporativa completa para feiras, congressos e recepção de delegações e convidados VIPs com coordenação no local.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Gestão de frota para eventos</span>
+                        </div>
+
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-taxi"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Táxi 24h Urbano</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Corridas urbanas rápidas e seguras a qualquer hora do dia ou da noite, com taxímetros aferidos ou tarifas fixas competitivas.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Prontidão 24 horas por dia</span>
+                        </div>
+
+                        <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-2xl mb-6">
+                                    <i class="fa-solid fa-globe"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-white mb-3">Motoristas Bilíngues</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed mb-6">Atendimento especializado em inglês e espanhol para receber executivos estrangeiros, diretores e dignitários com naturalidade.</p>
+                            </div>
+                            <span class="text-gold-400 text-xs font-semibold">Fluência e hospitalidade</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 4: TARIFAS & ORÇAMENTO ================= -->
+        <div id="page-tarifas" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <span class="text-gold-400 text-xs font-bold uppercase tracking-widest bg-gold-500/10 px-4 py-1.5 rounded-full border border-gold-500/20">Cotação & Agendamento</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Simulador de Tarifa & Orçamento</h2>
+                        <p class="text-slate-400 text-base">Preencha os detalhes da sua rota para estimar valores e agendar diretamente com nossa central via WhatsApp.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                        <div class="lg:col-span-7 bg-cardBg border border-darkBorder p-8 sm:p-10 rounded-3xl shadow-2xl">
+                            <form id="booking-simulation-form" onsubmit="handleSimulation(event)" class="space-y-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Serviço Desejado</label>
+                                        <select id="sim-service" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                            <option>Traslado Aeroporto</option>
+                                            <option>Transporte Executivo Corporativo</option>
+                                            <option>Táxi Urbano 24h</option>
+                                            <option>Motorista à Disposição (Hora)</option>
+                                            <option>Viagem Intermunicipal</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Categoria de Veículo</label>
+                                        <select id="sim-car" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                            <option value="sedan">Sedan Executivo (R$ 120 base)</option>
+                                            <option value="suv">SUV Premium (R$ 180 base)</option>
+                                            <option value="van">Van Executiva (R$ 320 base)</option>
+                                            <option value="blindado">Carro Blindado (R$ 290 base)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Endereço de Origem</label>
+                                        <input type="text" id="sim-origin" required placeholder="Ex: Av. Paulista, 1000 ou Aeroporto" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Endereço de Destino</label>
+                                        <input type="text" id="sim-destination" required placeholder="Ex: Aeroporto de Guarulhos" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Data e Horário</label>
+                                        <input type="datetime-local" id="sim-datetime" required class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Seu Nome / Empresa</label>
+                                        <input type="text" id="sim-name" required placeholder="Nome completo" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">WhatsApp para Contato</label>
+                                    <input type="tel" id="sim-phone" required placeholder="(11) 99999-9999" class="w-full px-4 py-3.5 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                                </div>
+
+                                <button type="submit" class="w-full bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 font-bold py-4 rounded-xl shadow-xl shadow-gold-500/20 hover:brightness-110 transition-all flex items-center justify-center gap-3 text-base cursor-pointer">
+                                    <i class="fa-solid fa-calculator"></i> Calcular e Enviar para WhatsApp
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="lg:col-span-5 space-y-6">
+                            <div class="bg-cardBg border border-darkBorder p-8 rounded-3xl shadow-2xl relative">
+                                <h3 class="font-serif text-2xl font-bold text-white mb-4">Estimativa Instantânea</h3>
+                                <p class="text-slate-400 text-sm mb-6">Valores base estimados. Pedágios e quilometragem adicional são calculados e confirmados pelo operador.</p>
+
+                                <div class="bg-darkBg border border-darkBorder p-6 rounded-2xl space-y-4 mb-6">
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-slate-400">Tarifa Base:</span>
+                                        <span id="res-price" class="text-gold-400 font-bold text-xl font-serif">R$ 120,00</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm border-t border-darkBorder pt-3">
+                                        <span class="text-slate-400">Espera Aeroporto:</span>
+                                        <span class="text-white font-semibold">Até 60 min grátis</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm border-t border-darkBorder pt-3">
+                                        <span class="text-slate-400">Cancelamento:</span>
+                                        <span class="text-emerald-400 font-semibold">Sem taxa até 2h antes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 5: SOBRE NÓS ================= -->
+        <div id="page-sobre" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <span class="text-gold-400 text-xs font-bold uppercase tracking-widest bg-gold-500/10 px-4 py-1.5 rounded-full border border-gold-500/20">Tradição & Excelência</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-bold mt-4 mb-4">Sobre a Parnoff</h2>
+                        <p class="text-slate-400 text-base">Há mais de 15 anos transformando o transporte executivo e corporativo em uma experiência segura, sofisticada e pontual.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                        <div class="space-y-6">
+                            <h3 class="font-serif text-3xl font-bold text-white">Nossa Missão e Valores</h3>
+                            <p class="text-slate-300 text-base leading-relaxed">
+                                A Parnoff nasceu com o propósito de elevar o padrão da mobilidade executiva. Entendemos que para diretores, executivos e autoridades, o tempo é o ativo mais precioso. Por isso, cada detalhe de nossa operação é planejado para garantir eficiência absoluta.
+                            </p>
+                            <p class="text-slate-300 text-base leading-relaxed">
+                                Contamos com uma equipe de motoristas profissionais selecionados através de rigorosos testes de direção defensiva, verificação de antecedentes e etiqueta corporativa.
+                            </p>
+                            <div class="grid grid-cols-2 gap-6 pt-4">
+                                <div class="border-l-2 border-gold-500 pl-4">
+                                    <span class="block text-3xl font-bold text-gold-400 font-serif">+15 Anos</span>
+                                    <span class="text-xs text-slate-400">De mercado corporativo</span>
+                                </div>
+                                <div class="border-l-2 border-gold-500 pl-4">
+                                    <span class="block text-3xl font-bold text-gold-400 font-serif">100%</span>
+                                    <span class="text-xs text-slate-400">Frota higienizada e nova</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-cardBg border border-darkBorder p-4 rounded-3xl shadow-2xl">
+                            <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop" alt="Motorista Parnoff" class="w-full h-96 object-cover rounded-2xl">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 6: CONTATO ================= -->
+        <div id="page-contato" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <div class="lg:col-span-6 space-y-6">
+                        <span class="text-gold-400 text-xs font-bold uppercase tracking-widest bg-gold-500/10 px-4 py-1.5 rounded-full border border-gold-500/20">Fale Conosco</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-bold leading-tight">
+                            Entre em Contato com a <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600">Central Parnoff</span>
+                        </h2>
+                        <p class="text-slate-300 text-base leading-relaxed">
+                            Nossa central de atendimento atende 24 horas por dia para reservas imediatas, contratos corporativos ou suporte de rotas.
+                        </p>
+                        <div class="space-y-4 pt-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-phone-volume"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs uppercase text-slate-400">Atendimento 24h</span>
+                                    <a href="tel:+5511999999999" class="text-white font-bold text-lg hover:text-gold-400 transition-colors">+55 (11) 99999-9999</a>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs uppercase text-slate-400">E-mail Corporativo</span>
+                                    <a href="mailto:contato@parnoff.com.br" class="text-white font-bold text-lg hover:text-gold-400 transition-colors">contato@parnoff.com.br</a>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs uppercase text-slate-400">Escritório Central</span>
+                                    <p class="text-white font-medium text-sm">Av. Brigadeiro Luis Antonio, 2500 - São Paulo, SP</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 bg-cardBg border border-darkBorder p-8 sm:p-10 rounded-3xl shadow-2xl">
+                        <h3 class="font-serif text-2xl font-bold text-white mb-6">Envie uma Mensagem</h3>
+                        <form onsubmit="event.preventDefault(); showToast('Mensagem enviada com sucesso!'); event.target.reset();" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Seu Nome</label>
+                                <input type="text" required placeholder="Nome completo" class="w-full px-4 py-3 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Telefone / WhatsApp</label>
+                                <input type="tel" required placeholder="(11) 99999-9999" class="w-full px-4 py-3 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Mensagem</label>
+                                <textarea rows="4" required placeholder="Escreva sua dúvida ou solicitação..." class="w-full px-4 py-3 bg-darkBg border border-darkBorder rounded-xl text-sm focus:outline-none focus:border-gold-500 text-slate-200"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 font-bold py-3.5 rounded-xl shadow-lg shadow-gold-500/20 hover:brightness-110 transition-all cursor-pointer">
+                                Enviar Mensagem
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/5511999999999?text=Olá,%20gostaria%20de%20fazer%20uma%20reserva%20com%20a%20Parnoff." target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl shadow-emerald-600/50 hover:scale-110 transition-all group" aria-label="WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span class="absolute right-full mr-3 bg-cardBg border border-darkBorder text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Fale conosco no WhatsApp
+        </span>
+    </a>
+
+    <!-- Footer -->
+    <footer class="bg-darkBg border-t border-darkBorder py-12 text-slate-400 text-sm mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs gap-4">
+            <p>&copy; 2026 Parnoff Transporte Executivo & Táxi. Todos os direitos reservados.</p>
+            <div class="flex gap-6">
+                <button onclick="switchPage('home')" class="hover:text-gold-400 transition-colors">Início</button>
+                <button onclick="switchPage('frota')" class="hover:text-gold-400 transition-colors">Frota</button>
+                <button onclick="switchPage('tarifas')" class="hover:text-gold-400 transition-colors">Orçamento</button>
+                <button onclick="switchPage('contato')" class="hover:text-gold-400 transition-colors">Contato</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Box -->
+    <div id="toast-message" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 hidden bg-cardBg border border-gold-500 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-gold-400 text-xl"></i>
+        <span id="toast-text" class="text-sm font-medium"></span>
+    </div>
+
+    <!-- SPA Navigation & Logic Script -->
+    <script>
+        function switchPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page-view');
+            pages.forEach(p => p.classList.remove('active'));
+
+            // Show target page
+            const target = document.getElementById('page-' + pageId);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update desktop nav highlights
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => {
+                tab.classList.remove('text-gold-400', 'font-semibold', 'border-gold-500');
+                tab.classList.add('border-transparent');
+            });
+
+            const activeTab = document.getElementById('nav-' + pageId);
+            if (activeTab) {
+                activeTab.classList.add('text-gold-400', 'font-semibold', 'border-gold-500');
+                activeTab.classList.remove('border-transparent');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        function showToast(text) {
+            const toast = document.getElementById('toast-message');
+            const toastText = document.getElementById('toast-text');
+            toastText.textContent = text;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Pricing selector logic
+        const simCarSelect = document.getElementById('sim-car');
+        const resPrice = document.getElementById('res-price');
+        if (simCarSelect) {
+            simCarSelect.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === 'sedan') resPrice.textContent = 'R$ 120,00';
+                else if (val === 'suv') resPrice.textContent = 'R$ 180,00';
+                else if (val === 'van') resPrice.textContent = 'R$ 320,00';
+                else if (val === 'blindado') resPrice.textContent = 'R$ 290,00';
+            });
+        }
+
+        function handleSimulation(e) {
+            e.preventDefault();
+            const service = document.getElementById('sim-service').value;
+            const car = document.getElementById('sim-car').value;
+            const origin = document.getElementById('sim-origin').value;
+            const destination = document.getElementById('sim-destination').value;
+            const name = document.getElementById('sim-name').value;
+            const phone = document.getElementById('sim-phone').value;
+
+            showToast('Simulação calculada! Redirecionando para o WhatsApp...');
+            setTimeout(() => {
+                const message = `Olá! Meu nome é ${name} (${phone}). Gostaria de agendar:\n- Serviço: ${service}\n- Veículo: ${car}\n- De: ${origin}\n- Para: ${destination}`;
+                window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(message)}`, '_blank');
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
