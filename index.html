@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090710">
+  <title>Game Store | Sua loja de jogos</title>
+
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23120b27'/%3E%3Cpath d='M17 24h30c7 0 12 8 12 19 0 6-5 9-10 5l-8-6H23l-8 6C10 52 5 49 5 43c0-11 5-19 12-19z' fill='%239255ff'/%3E%3Cpath d='M19 31v13M13 37h12' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='43' cy='34' r='3' fill='white'/%3E%3Ccircle cx='50' cy='40' r='3' fill='white'/%3E%3C/svg%3E">
+
+  <style>
+    /* ==========================================================================
+       1. VARIÁVEIS DE CORES E ESTILOS GERAIS
+       ========================================================================== */
+    :root {
+      --fundo: #090710;
+      --painel: #141026;
+      --painel2: #1e1736;
+      --roxo: #9255ff;
+      --roxo-claro: #b89aff;
+      --texto: #f7f3ff;
+      --cinza: #b8b2c6;
+      --borda: #332452;
+      --perigo: #f16b83;
+      --dourado: #ffaa00;
+    }
+
+    /* Ponteiro do mouse padrão ocultado para usar o cursor customizado */
+    *, *::before, *::after { box-sizing: border-box; cursor: none !important; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--texto);
+      background: var(--fundo);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .container {
+      width: min(1200px, 92%);
+      margin-inline: auto;
+    }
+
+    /* ==========================================================================
+       2. CURSOR GAMER NEON CUSTOMIZADO
+       ========================================================================== */
+    #cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 8px; height: 8px;
+      background: var(--roxo-claro);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.15s, height 0.15s, background-color 0.15s;
+      box-shadow: 0 0 10px var(--roxo-claro);
+    }
+    #cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      width: 32px; height: 32px;
+      border: 2px solid var(--roxo);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, border-color 0.2s;
+      box-shadow: 0 0 15px rgba(146, 85, 255, 0.4);
+    }
+    body.hovered #cursor-dot {
+      width: 12px; height: 12px;
+      background: var(--dourado);
+      box-shadow: 0 0 12px var(--dourado);
+    }
+    body.hovered #cursor-ring {
+      width: 46px; height: 46px;
+      border-color: var(--dourado);
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+    }
+
+    /* ==========================================================================
+       3. CABEÇALHO E NAVEGAÇÃO
+       ========================================================================== */
+    .topo {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(13, 10, 26, 0.92);
+      border-bottom: 1px solid var(--borda);
+      backdrop-filter: blur(14px);
+    }
+    .topo-interno {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--roxo-claro);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -.04em;
+    }
+    .logo-icone {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #bd88ff, #6c2cff);
+      border-radius: 13px;
+      box-shadow: 0 0 20px rgba(146, 85, 255, 0.5);
+      color: white;
+      font-size: 1.35rem;
+    }
+    .menu {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .menu button {
+      border: 0;
+      color: var(--texto);
+      background: transparent;
+      padding: 10px 14px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .menu button:hover {
+      background: var(--painel2);
+      color: var(--roxo-claro);
+    }
+    .contador {
+      background: var(--roxo);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .8rem;
+    }
+
+    /* ==========================================================================
+       4. BANNER PRINCIPAL COM SLIDER DE IMAGENS (TROCA A CADA SEGUNDO)
+       ========================================================================== */
+    .banner-3d {
+      position: relative;
+      min-height: 540px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      background: linear-gradient(90deg, rgba(9, 7, 16, 0.95) 20%, rgba(9, 7, 16, 0.6) 60%, rgba(9, 7, 16, 0.3)),
+                  url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=85') center/cover;
+      border-bottom: 1px solid var(--borda);
+      overflow: hidden;
+    }
+    .banner-info {
+      padding: 60px 0;
+      z-index: 2;
+    }
+    .banner-info h1 {
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: 1.1;
+      margin: 15px 0;
+    }
+    .banner-info h1 strong {
+      color: #c3a3ff;
+      text-shadow: 0 0 25px rgba(184, 154, 255, 0.5);
+    }
+    .banner-info p {
+      color: #e4ddf1;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      max-width: 520px;
+    }
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #banner-rotating-img {
+      max-height: 400px;
+      width: 85%;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid var(--borda);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(146, 85, 255, 0.25);
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    /* Botões Globais */
+    .botao {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 22px;
+      background: var(--roxo);
+      color: white;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(146, 85, 255, 0.3);
+    }
+    .botao:hover {
+      background: #7d3eea;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(146, 85, 255, 0.5);
+    }
+    .botao-secundario { background: var(--painel2); border-color: var(--borda); box-shadow: none; }
+    .botao-secundario:hover { background: #2b2148; }
+    .botao-perigo { background: transparent; color: var(--perigo); border-color: #612d44; box-shadow: none; }
+    .botao-perigo:hover { background: #451e2f; }
+
+    /* ==========================================================================
+       5. ÁREA DE DESTAQUES COM IMAGEM DE FUNDO
+       ========================================================================== */
+    .secao-destaques {
+      padding: 70px 0;
+      position: relative;
+      background: linear-gradient(180deg, rgba(9, 7, 16, 0.85) 0%, rgba(20, 16, 38, 0.5) 50%, rgba(9, 7, 16, 0.95) 100%),
+                  url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1920&q=85') center/cover fixed;
+      border-bottom: 1px solid var(--borda);
+    }
+    .secao-cabecalho {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+    .secao-cabecalho h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); margin: 0 0 6px; }
+    .muted { color: var(--cinza); line-height: 1.6; }
+
+    .busca {
+      background: var(--painel);
+      color: var(--texto);
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      padding: 13px 18px;
+      width: min(350px, 100%);
+      outline: none;
+    }
+    .busca:focus { border-color: var(--roxo); box-shadow: 0 0 0 3px rgba(146, 85, 255, 0.2); }
+
+    /* Cards e Destaques Grandes */
+    .grade-destaques {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px;
+    }
+    .card-destaque {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border: 1px solid var(--borda);
+      transition: all 0.35s ease;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    }
+    .card-destaque:hover {
+      transform: translateY(-6px);
+      border-color: var(--roxo);
+      box-shadow: 0 18px 40px rgba(146, 85, 255, 0.25);
+    }
+    .card-destaque-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      z-index: 0;
+    }
+    .card-destaque:hover .card-destaque-bg {
+      transform: scale(1.08);
+    }
+    .card-destaque-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(9, 7, 16, 0.1) 0%, rgba(9, 7, 16, 0.7) 50%, rgba(9, 7, 16, 0.95) 100%);
+      z-index: 1;
+    }
+    .card-destaque-conteudo {
+      position: relative;
+      z-index: 2;
+      padding: 28px;
+    }
+    .badge-destaque {
+      background: linear-gradient(135deg, var(--roxo), #6c2cff);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .card-destaque h3 { font-size: 1.8rem; margin: 0 0 10px; }
+    .card-destaque p { color: #e4ddf1; font-size: 0.98rem; margin: 0 0 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-destaque-rodape { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+
+    /* Grade Secundária (Outros Jogos) */
+    .secao-normal { padding: 60px 0; }
+    .grade-jogos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+    .card-jogo {
+      background: var(--painel);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+    .card-jogo:hover {
+      transform: translateY(-5px);
+      border-color: var(--roxo);
+      box-shadow: 0 12px 30px rgba(146, 85, 255, 0.15);
+    }
+    .card-jogo-img { width: 100%; height: 210px; object-fit: cover; transition: transform 0.4s; }
+    .card-jogo:hover .card-jogo-img { transform: scale(1.05); }
+    .card-jogo-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+
+    /* ==========================================================================
+       6. DETALHES, MÍDIA E CARRINHO
+       ========================================================================== */
+    .voltar { margin: 30px 0 20px; }
+    .detalhe {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+      gap: 35px;
+      background: var(--painel);
+      border: 1px solid var(--borda);
+      border-radius: 20px;
+      padding: 30px;
+    }
+    .detalhe-capa { width: 100%; height: 460px; object-fit: cover; border-radius: 14px; }
+    .ficha { background: #0d0b17; border: 1px solid var(--borda); padding: 18px; border-radius: 12px; line-height: 1.9; margin: 15px 0; }
+    
+    .midia-abas { display: flex; gap: 10px; margin-bottom: 16px; }
+    .midia-abas button { border: 1px solid var(--borda); background: var(--painel2); color: var(--texto); padding: 12px 18px; border-radius: 10px; }
+    .midia-abas button.ativo { background: var(--roxo); border-color: var(--roxo); }
+    .midia-palco { width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 16px; background: #050509; display: flex; align-items: center; justify-content: center; }
+    .midia-palco img, .midia-palco iframe, .midia-palco video { width: 100%; height: 100%; object-fit: contain; border: 0; }
+
+    .carrinho { background: var(--painel); border: 1px solid var(--borda); border-radius: 18px; padding: 28px; margin-bottom: 60px; }
+    .item { display: grid; grid-template-columns: 90px minmax(0, 1fr) auto auto; gap: 20px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--borda); }
+    .item img { width: 90px; height: 90px; object-fit: cover; border-radius: 10px; }
+    .controle button { background: var(--painel2); color: white; border: 1px solid var(--borda); width: 36px; height: 36px; border-radius: 9px; }
+
+    .rodape { border-top: 1px solid var(--borda); background: #090710; color: var(--cinza); text-align: center; padding: 30px; }
+    .toast { position: fixed; bottom: 25px; right: 25px; padding: 16px 22px; background: var(--roxo); color: white; border-radius: 12px; z-index: 50; box-shadow: 0 10px 30px rgba(146, 85, 255, 0.4); }
+    .escondido { display: none !important; }
+
+    /* Responsividade */
+    @media(max-width: 900px) {
+      .banner-3d { grid-template-columns: 1fr; }
+      .canvas-container { min-height: 350px; }
+      .grade-destaques { grid-template-columns: 1fr; }
+      .grade-jogos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .detalhe { grid-template-columns: 1fr; }
+    }
+    @media(max-width: 600px) {
+      .grade-jogos { grid-template-columns: 1fr; }
+      .topo-interno { flex-direction: column; gap: 10px; padding: 12px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Elementos do Cursor Gamer Customizado -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- CABEÇALHO -->
+  <header class="topo">
+    <div class="container topo-interno">
+      <a href="#/" class="logo"><span class="logo-icone">🎮</span> Game Store</a>
+      <nav class="menu">
+        <button type="button" data-rota="/">Início</button>
+        <button type="button" data-rota="/catalogo">Jogos</button>
+        <button type="button" data-rota="/carrinho">🛒 Carrinho <span id="contador" class="contador">0</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO DINÂMICO -->
+  <main id="app"></main>
+
+  <!-- RODAPÉ -->
+  <footer class="rodape">
+    © 2026 Game Store • Loja demonstrativa com animações, vídeos MP4 nativos e imagens em destaque.
+  </footer>
+
+  <div id="toast" class="toast escondido"></div>
+
+  <script>
+    'use strict';
+
+    /* ==========================================================================
+       1. SISTEMA DE CURSOR CUSTOMIZADO GAMER
+       ========================================================================== */
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+
+    window.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.left = mouseX + 'px';
+      cursorDot.style.top = mouseY + 'px';
+    });
+
+    function animarCursor() {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top = ringY + 'px';
+      requestAnimationFrame(animarCursor);
+    }
+    animarCursor();
+
+    document.addEventListener('mouseover', e => {
+      if (e.target.closest('button, a, input, .card-destaque, .card-jogo')) {
+        document.body.classList.add('hovered');
+      }
+    });
+    document.addEventListener('mouseout', e => {
+      if (e.target.closest('button, a, input, .card-destaque, .card-jogo')) {
+        document.body.classList.remove('hovered');
+      }
+    });
+
+    /* ==========================================================================
+       2. CATÁLOGO COMPLETO DE JOGOS COM VÍDEO LOCAL MP4
+       ========================================================================== */
+    const jogos = [
+      {
+        id: 'gow',
+        nome: 'God of War',
+        preco: 199.90,
+        genero: 'Ação / Mitologia',
+        desenvolvedora: 'Santa Monica Studio',
+        plataforma: 'PlayStation / PC',
+        idioma: 'Dublado em Português',
+        nota: '5,0',
+        imagem: 'img/GodofWar3_capa.png',
+        descricao: 'Acompanhe Kratos e Atreus em uma jornada mística pelos reinos da mitologia nórdica.',
+        videoLocal: 'video/god.mp4',
+        videoBusca: 'God of War gameplay'
+      },
+      {
+        id: 'zelda',
+        nome: 'The Legend of Zelda',
+        preco: 199.90,
+        genero: 'Aventura / RPG',
+        desenvolvedora: 'Nintendo',
+        plataforma: 'Nintendo Switch',
+        idioma: 'Português (PT-BR)',
+        nota: '4,9',
+        imagem: 'img/zelda.jpg',
+        descricao: 'Explore o vasto reino de Hyrule, desvende santuários e enfrente ameaças ancestrais com o herói Link.',
+        videoLocal: 'video/zelda.mp4',
+        videoBusca: 'The Legend of Zelda gameplay'
+      },
+      {
+        id: 'resident',
+        nome: 'Resident Evil',
+        preco: 179.90,
+        genero: 'Survival Horror',
+        desenvolvedora: 'Capcom',
+        plataforma: 'PC / Consoles',
+        idioma: 'Português (Legendas)',
+        nota: '4,9',
+        imagem: 'img/resident.jpg',
+        descricao: 'Enfrente pesadelos em cidades tomadas por criaturas aterrorizantes e mistérios biológicos.',
+        videoLocal: 'video/resident.mp4',
+        videoBusca: 'Resident Evil gameplay'
+      },
+      {
+        id: 'mario',
+        nome: 'Super Mario World',
+        preco: 149.90,
+        genero: 'Plataforma',
+        desenvolvedora: 'Nintendo',
+        plataforma: 'SNES / Switch',
+        idioma: 'Português / Inglês',
+        nota: '4,8',
+        imagem: 'img/mario.jpg',
+        descricao: 'Explore Dinosaur Land com Mario, Luigi e Yoshi para resgatar a Princesa Peach.',
+        videoLocal: 'video/mario.mp4',
+        videoBusca: 'Super Mario World gameplay'
+      },
+      {
+        id: 'cyberpunk',
+        nome: 'Cyberpunk 2077',
+        preco: 149.90,
+        genero: 'RPG / Mundo Aberto',
+        desenvolvedora: 'CD Projekt Red',
+        plataforma: 'PC / Consoles',
+        idioma: 'Dublado em Português',
+        nota: '4,6',
+        imagem: 'img/punk.jpg',
+        descricao: 'Explore Night City, uma megalópole futurista obcecada por poder, tecnologia e cibernética.',
+        videoLocal: 'video/cyberpunk.mp4',
+        videoBusca: 'Cyberpunk 2077 gameplay'
+      },
+      {
+        id: 'mortal',
+        nome: 'Mortal Kombat',
+        preco: 99.90,
+        genero: 'Luta',
+        desenvolvedora: 'NetherRealm',
+        plataforma: 'Multiplataforma',
+        idioma: 'Português',
+        nota: '4,9',
+        imagem: 'img/mortal.jpg',
+        descricao: 'A clássica franquia de luta com combos frenéticos, personagens lendários e golpes especiais.',
+        videoLocal: 'video/mortal.mp4',
+        videoBusca: 'Mortal Kombat gameplay'
+      },
+      {
+        id: 'donkey',
+        nome: 'Donkey Kong Country',
+        preco: 129.90,
+        genero: 'Plataforma',
+        desenvolvedora: 'Rare / Nintendo',
+        plataforma: 'SNES',
+        idioma: 'Inglês',
+        nota: '4,7',
+        imagem: 'img/donkey.jpg',
+        descricao: 'Junte-se a Donkey e Diddy Kong na busca para recuperar o tesouro de bananas roubado.',
+        videoLocal: 'video/donkey.mp4',
+        videoBusca: 'Donkey Kong Country gameplay'
+      },
+      {
+        id: 'street',
+        nome: 'Street Fighter',
+        preco: 79.90,
+        genero: 'Luta',
+        desenvolvedora: 'Capcom',
+        plataforma: 'Multiplataforma',
+        idioma: 'Inglês / Japonês',
+        nota: '4,6',
+        imagem: 'img/stret.jpg',
+        descricao: 'Dispute combates icônicos com lutadores mundiais de artes marciais.',
+        videoLocal: 'video/street.mp4',
+        videoBusca: 'Street Fighter gameplay'
+      },
+      {
+        id: 'metroid',
+        nome: 'Metroid',
+        preco: 119.90,
+        genero: 'Ação / Exploração',
+        desenvolvedora: 'Nintendo',
+        plataforma: 'Multiplataforma',
+        idioma: 'Inglês',
+        nota: '4,8',
+        imagem: 'img/metroid.jpg',
+        descricao: 'Navegue por labirintos alienígenas como a caçadora intergaláctica Samus Aran.',
+        videoLocal: 'video/metroid.mp4',
+        videoBusca: 'Metroid gameplay'
+      },
+      {
+        id: 'sonic',
+        nome: 'Sonic the Hedgehog',
+        preco: 89.90,
+        genero: 'Plataforma / Velocidade',
+        desenvolvedora: 'SEGA',
+        plataforma: 'Multiplataforma',
+        idioma: 'Português / Inglês',
+        nota: '4,7',
+        imagem: 'img/sonic.jpg',
+        descricao: 'Corra em altíssima velocidade e frustre os planos do Doutor Eggman.',
+        videoLocal: 'video/sonic.mp4',
+        videoBusca: 'Sonic gameplay'
+      },
+      {
+        id: 'minecraft',
+        nome: 'Minecraft',
+        preco: 99.90,
+        genero: 'Sandbox / Sobrevivência',
+        desenvolvedora: 'Mojang Studios',
+        plataforma: 'Multiplataforma',
+        idioma: 'Português (PT-BR)',
+        nota: '4,9',
+        imagem: 'img/mine.jpg',
+        descricao: 'Construa tudo o que sua imaginação permitir em um mundo feito de blocos.',
+        videoLocal: 'video/minecraft.mp4',
+        videoBusca: 'Minecraft gameplay'
+      },
+      {
+        id: 'pacman',
+        nome: 'Pac-Man Arcade',
+        preco: 49.90,
+        genero: 'Arcade Clássico',
+        desenvolvedora: 'Bandai Namco',
+        plataforma: 'Multiplataforma',
+        idioma: 'Universal',
+        nota: '4,5',
+        imagem: 'img/pac.jpg',
+        descricao: 'O eterno clássico dos fliperamas: coma todas as pastilhas e fuja dos fantasmas.',
+        videoLocal: 'video/pacman.mp4',
+        videoBusca: 'Pac-Man gameplay'
+      }
+    ];
+
+    /* ==========================================================================
+       3. LÓGICA DE CARRINHO E ROTEAMENTO
+       ========================================================================== */
+    const CHAVE_CARRINHO = 'gamestore_carrinho';
+    const app = document.getElementById('app');
+
+    const dinheiro = valor => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const encontrar = id => jogos.find(j => j.id === id);
+    const rotaJogo = id => '#/jogo/' + encodeURIComponent(id);
+    function escapar(texto) {
+      return String(texto || '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+
+    function lerCarrinho() {
+      try {
+        const dados = JSON.parse(localStorage.getItem(CHAVE_CARRINHO) || '[]');
+        return Array.isArray(dados) ? dados.filter(i => i && encontrar(i.id) && i.quantidade > 0) : [];
+      } catch (e) { return []; }
+    }
+
+    function salvarCarrinho(carrinho) {
+      try { localStorage.setItem(CHAVE_CARRINHO, JSON.stringify(carrinho)); } catch(e){}
+      atualizarContador();
+    }
+
+    function atualizarContador() {
+      document.getElementById('contador').textContent = lerCarrinho().reduce((s, i) => s + i.quantidade, 0);
+    }
+
+    function adicionar(id) {
+      if (!encontrar(id)) return;
+      const carrinho = lerCarrinho();
+      const item = carrinho.find(i => i.id === id);
+      if (item) item.quantidade++;
+      else carrinho.push({ id, quantidade: 1 });
+      salvarCarrinho(carrinho);
+      aviso('🎮 Jogo adicionado ao carrinho!');
+    }
+
+    function mudarQuantidade(id, delta) {
+      const carrinho = lerCarrinho();
+      const item = carrinho.find(i => i.id === id);
+      if (!item) return;
+      item.quantidade += delta;
+      salvarCarrinho(carrinho.filter(i => i.quantidade > 0));
+      renderizar();
+    }
+
+    function remover(id) {
+      salvarCarrinho(lerCarrinho().filter(i => i.id !== id));
+      renderizar();
+      aviso('Jogo removido.');
+    }
+
+    let tempoAviso;
+    function aviso(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('escondido');
+      clearTimeout(tempoAviso);
+      tempoAviso = setTimeout(() => el.classList.add('escondido'), 2600);
+    }
+
+    /* ==========================================================================
+       4. SLIDER DE IMAGEM NO BANNER (TROCA A CADA 1 SEGUNDO)
+       ========================================================================== */
+    const imagensBanner = jogos.map(j => j.imagem);
+    let indiceBanner = 0;
+    let timerBanner = null;
+
+    function iniciarTrocaBanner() {
+      const imgEl = document.getElementById('banner-rotating-img');
+      if (!imgEl) return;
+
+      if (timerBanner) clearInterval(timerBanner);
+
+      timerBanner = setInterval(() => {
+        indiceBanner = (indiceBanner + 1) % imagensBanner.length;
+        imgEl.style.opacity = 0;
+        setTimeout(() => {
+          imgEl.src = imagensBanner[indiceBanner];
+          imgEl.style.opacity = 1;
+        }, 200);
+      }, 1000);
+    }
+
+    /* ==========================================================================
+       5. COMPONENTES DAS PÁGINAS
+       ========================================================================== */
+    function renderInicio() {
+      const destaques = jogos.slice(0, 6);
+      const outros = jogos.slice(6);
+
+      app.innerHTML = `
+        <section class="banner-3d">
+          <div class="container banner-info">
+            <span class="badge-destaque">Lançamentos em Destaque</span>
+            <h1>Entre na arena.<br><strong>Sua próxima lenda.</strong></h1>
+            <p>Explore o catálogo completo de jogos lendários e garanta seus títulos favoritos com segurança.</p>
+            <a class="botao" href="#/catalogo">Explorar jogos →</a>
+          </div>
+          <div class="canvas-container" id="canvas-container">
+            <img id="banner-rotating-img" src="${imagensBanner[0]}" alt="Destaque Banner">
+          </div>
+        </section>
+
+        <section class="secao-destaques">
+          <div class="container">
+            <div class="secao-cabecalho">
+              <div>
+                <h2>🔥 Destaques da Semana</h2>
+                <p class="muted">Os 6 títulos mais aclamados com gráficos incríveis.</p>
+              </div>
+            </div>
+
+            <div class="grade-destaques">
+              ${destaques.map(j => `
+                <article class="card-destaque">
+                  <img class="card-destaque-bg" src="${escapar(j.imagem)}" alt="${escapar(j.nome)}">
+                  <div class="card-destaque-overlay"></div>
+                  <div class="card-destaque-conteudo">
+                    <span class="badge-destaque">${escapar(j.genero)}</span>
+                    <h3>${escapar(j.nome)}</h3>
+                    <p>${escapar(j.descricao)}</p>
+                    <div class="card-destaque-rodape">
+                      <strong style="font-size:1.5rem; color:var(--roxo-claro)">${dinheiro(j.preco)}</strong>
+                      <div style="display:flex; gap:8px;">
+                        <button class="botao" data-add="${j.id}">🛒 Adicionar</button>
+                        <a class="botao botao-secundario" href="${rotaJogo(j.id)}">Detalhes</a>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              `).join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="secao-normal container">
+          <h2>🎮 Outros Títulos Imperdíveis</h2>
+          <div class="grade-jogos" style="margin-top:20px;">
+            ${outros.map(j => `
+              <article class="card-jogo">
+                <a href="${rotaJogo(j.id)}"><img class="card-jogo-img" src="${escapar(j.imagem)}" alt="${escapar(j.nome)}"></a>
+                <div class="card-jogo-body">
+                  <span style="color:var(--roxo-claro); font-size:0.8rem; font-weight:700;">${escapar(j.genero)}</span>
+                  <h3 style="margin:8px 0;">${escapar(j.nome)}</h3>
+                  <div style="font-weight:800; font-size:1.3rem; margin:10px 0; color:var(--roxo-claro);">${dinheiro(j.preco)}</div>
+                  <div style="display:flex; gap:8px;">
+                    <button class="botao" style="flex:1;" data-add="${j.id}">🛒 Adicionar</button>
+                    <a class="botao botao-secundario" href="${rotaJogo(j.id)}">Detalhes</a>
+                  </div>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      `;
+
+      setTimeout(iniciarTrocaBanner, 50);
+    }
+
+    function renderCatalogo() {
+      if (timerBanner) clearInterval(timerBanner);
+      app.innerHTML = `
+        <section class="secao-normal container">
+          <div class="secao-cabecalho">
+            <div>
+              <h2>🎮 Catálogo de Jogos</h2>
+              <p class="muted">Todos os 12 jogos disponíveis em nossa plataforma.</p>
+            </div>
+            <input id="pesquisa" class="busca" type="search" placeholder="Pesquisar por nome ou gênero...">
+          </div>
+          <div id="grade-busca" class="grade-jogos"></div>
+        </section>
+      `;
+
+      const busca = document.getElementById('pesquisa');
+      const grade = document.getElementById('grade-busca');
+
+      function filtrar() {
+        const termo = busca.value.trim().toLowerCase();
+        const enc = jogos.filter(j => (j.nome + ' ' + j.genero).toLowerCase().includes(termo));
+        grade.innerHTML = enc.length ? enc.map(j => `
+          <article class="card-jogo">
+            <a href="${rotaJogo(j.id)}"><img class="card-jogo-img" src="${escapar(j.imagem)}" alt="${escapar(j.nome)}"></a>
+            <div class="card-jogo-body">
+              <span style="color:var(--roxo-claro); font-size:0.8rem; font-weight:700;">${escapar(j.genero)}</span>
+              <h3 style="margin:8px 0;">${escapar(j.nome)}</h3>
+              <div style="font-weight:800; font-size:1.3rem; margin:10px 0; color:var(--roxo-claro);">${dinheiro(j.preco)}</div>
+              <div style="display:flex; gap:8px;">
+                <button class="botao" style="flex:1;" data-add="${j.id}">🛒 Adicionar</button>
+                <a class="botao botao-secundario" href="${rotaJogo(j.id)}">Detalhes</a>
+              </div>
+            </div>
+          </article>
+        `).join('') : '<p class="muted">Nenhum jogo encontrado.</p>';
+      }
+      busca.addEventListener('input', filtrar);
+      filtrar();
+    }
+
+    function renderDetalhes(id) {
+      if (timerBanner) clearInterval(timerBanner);
+      const j = encontrar(id);
+      if (!j) { app.innerHTML = '<div class="container secao-normal"><h1>Jogo não encontrado</h1><a href="#/" class="botao">Voltar</a></div>'; return; }
+
+      app.innerHTML = `
+        <div class="container">
+          <div class="voltar"><a href="#/catalogo">← Voltar aos jogos</a></div>
+          <section class="detalhe">
+            <img class="detalhe-capa" src="${escapar(j.imagem)}" alt="${escapar(j.nome)}">
+            <div>
+              <span class="badge-destaque">${escapar(j.genero)}</span>
+              <h1>${escapar(j.nome)}</h1>
+              <p>⭐ Avaliação: ${escapar(j.nota)} / 5</p>
+              <p class="muted">${escapar(j.descricao)}</p>
+              <div class="ficha">
+                <strong>Desenvolvedora:</strong> ${escapar(j.desenvolvedora)}<br>
+                <strong>Plataforma:</strong> ${escapar(j.plataforma)}<br>
+                <strong>Idioma:</strong> ${escapar(j.idioma)}
+              </div>
+              <div style="font-size:1.8rem; font-weight:900; color:var(--roxo-claro); margin:15px 0;">${dinheiro(j.preco)}</div>
+              <div style="display:flex; gap:10px;">
+                <button class="botao" data-add="${j.id}">🛒 Adicionar ao carrinho</button>
+                <button class="botao botao-secundario" data-comprar="${j.id}">Ir para carrinho</button>
+              </div>
+            </div>
+          </section>
+
+          <section style="margin:40px 0;">
+            <h2>🎮 Mídia e Gameplay</h2>
+            <div class="midia-abas">
+              <button class="ativo" data-midia="imagem" data-jogo="${j.id}">🖼️ Imagem de capa</button>
+              <button data-midia="video" data-jogo="${j.id}">▶ Assistir vídeo</button>
+            </div>
+            <div id="midia-palco" class="midia-palco">
+              <img src="${escapar(j.imagem)}" alt="Capa de ${escapar(j.nome)}">
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderCarrinho() {
+      if (timerBanner) clearInterval(timerBanner);
+      const itens = lerCarrinho();
+      if (!itens.length) {
+        app.innerHTML = `
+          <div class="container secao-normal">
+            <h1>🛒 Seu Carrinho</h1>
+            <div style="text-align:center; padding:50px;">
+              <h2>Seu carrinho está vazio</h2>
+              <a href="#/catalogo" class="botao" style="margin-top:15px;">Explorar catálogo</a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const total = itens.reduce((s, i) => s + encontrar(i.id).preco * i.quantidade, 0);
+
+      app.innerHTML = `
+        <div class="container secao-normal">
+          <h1>🛒 Meu Carrinho</h1>
+          <div class="carrinho">
+            ${itens.map(item => {
+              const j = encontrar(item.id);
+              return `
+                <div class="item">
+                  <img src="${escapar(j.imagem)}" alt="${escapar(j.nome)}">
+                  <div>
+                    <h3>${escapar(j.nome)}</h3>
+                    <p class="muted">Preço: ${dinheiro(j.preco)}</p>
+                  </div>
+                  <div class="controle">
+                    <button data-qtd="${j.id}" data-delta="-1">−</button>
+                    <strong style="margin:0 8px;">${item.quantidade}</strong>
+                    <button data-qtd="${j.id}" data-delta="1">+</button>
+                  </div>
+                  <div style="font-weight:800; color:var(--roxo-claro);">${dinheiro(j.preco * item.quantidade)}</div>
+                  <button class="botao botao-perigo" data-remover="${j.id}">Remover</button>
+                </div>`;
+            }).join('')}
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px; margin-top:20px;">
+              <strong style="font-size:1.8rem;">Total: ${dinheiro(total)}</strong>
+              <button class="botao" data-finalizar>Simular Finalização</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ==========================================================================
+       6. ROTEADOR DE PÁGINAS E EVENTOS
+       ========================================================================== */
+    function renderizar() {
+      const caminho = decodeURIComponent(window.location.hash.slice(1) || '/');
+      if (caminho === '/') renderInicio();
+      else if (caminho === '/catalogo') renderCatalogo();
+      else if (caminho === '/carrinho') renderCarrinho();
+      else if (caminho.startsWith('/jogo/')) renderDetalhes(caminho.slice(6));
+      atualizarContador();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+
+      // Alternância de Mídia (Capa vs Vídeo MP4)
+      if (btn.hasAttribute('data-midia')) {
+        const abas = document.querySelectorAll('.midia-abas button');
+        abas.forEach(b => b.classList.remove('ativo'));
+        btn.classList.add('ativo');
+
+        const palco = document.getElementById('midia-palco');
+        const jogoId = btn.dataset.jogo;
+        const j = encontrar(jogoId);
+
+        if (palco && j) {
+          palco.innerHTML = '';
+          if (btn.dataset.midia === 'video') {
+            if (j.videoLocal) {
+              const video = document.createElement('video');
+              video.src = j.videoLocal;
+              video.controls = true;
+              video.autoplay = true;
+              video.loop = true;
+              video.style.width = '100%';
+              video.style.height = '100%';
+              video.style.objectFit = 'contain';
+
+              video.onerror = () => {
+                palco.innerHTML = `
+                  <div style="text-align:center; padding:30px; color:var(--cinza);">
+                    <p>⚠️ Vídeo local <strong>${escapar(j.videoLocal)}</strong> não encontrado na pasta.</p>
+                    <p>Pesquise gameplay online:</p>
+                    <a class="botao botao-secundario" href="https://www.youtube.com/results?search_query=${encodeURIComponent(j.videoBusca)}" target="_blank">🔍 Buscar no YouTube ↗</a>
+                  </div>`;
+              };
+
+              palco.appendChild(video);
+            } else {
+              palco.innerHTML = `
+                <div style="text-align:center; padding:30px; color:var(--cinza);">
+                  <p>Nenhum vídeo local cadastrado para este jogo.</p>
+                  <a class="botao botao-secundario" href="https://www.youtube.com/results?search_query=${encodeURIComponent(j.videoBusca)}" target="_blank">🔍 Pesquisar no YouTube ↗</a>
+                </div>`;
+            }
+          } else {
+            const img = document.createElement('img');
+            img.src = j.imagem;
+            img.alt = j.nome;
+            palco.appendChild(img);
+          }
+        }
+      }
+
+      if (btn.hasAttribute('data-rota')) window.location.hash = '#' + btn.dataset.rota;
+      if (btn.hasAttribute('data-add')) adicionar(btn.dataset.add);
+      if (btn.hasAttribute('data-comprar')) { adicionar(btn.dataset.comprar); window.location.hash = '#/carrinho'; }
+      if (btn.hasAttribute('data-qtd')) mudarQuantidade(btn.dataset.qtd, Number(btn.dataset.delta));
+      if (btn.hasAttribute('data-remover')) remover(btn.dataset.remover);
+      if (btn.hasAttribute('data-finalizar')) aviso('Compra simulada com sucesso!');
+    });
+
+    window.addEventListener('hashchange', renderizar);
+    renderizar();
+  </script>
+</body>
+</html>
